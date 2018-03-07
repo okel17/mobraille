@@ -1,8 +1,4 @@
 <!-- from http://jmcglone.com/guides/github-pages/ -->
----
-layout: default
-title: Mobraille
----
 <div class="blurb">
 	<h1>18-500 Spring 2018 Capstone Project</h1>
 	<p>temp description</p>
