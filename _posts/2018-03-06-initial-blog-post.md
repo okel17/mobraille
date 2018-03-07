@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Initial Blog Post"
+title: "initial-blog-post"
 date: 2018-03-06
 ---
 
