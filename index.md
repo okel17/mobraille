@@ -1,8 +1,10 @@
 ---
 layout: page
-title: simple site
-tagline: Easy websites with GitHub Pages
-description: Minimal tutorial on making a simple website with GitHub Pages
+title: Mobraille
+tagline: 18-500 Spring 2018 Design Project (Team D6)
+description: Mobraille is an object-to-Braille device that is scoped to classify
+three different toys and articulate their names in Braille. Mobraille will
+enable blind children to begin to see the world.
 ---
 
 [Github Pages](https://pages.github.com) provide a simple way to make a
