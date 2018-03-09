@@ -18,6 +18,13 @@ devices used to teach the blind are prohibitively expensive. Furthermore,
 braille keyboards and refreshable displays are limited to the cyber world.
 Mobraille extends learning opportunities to the physical world.
 
+## Our inspiration
+
+![code](images/BecDot.jpg)
+
+BecDot is an electromechanical educational toy that uses NFC tags to identify objects
+and then articulate Braille characters.
+
 ## Current tasks
 * Image data set collection
 * Color moments feature extraction implementation
@@ -29,20 +36,7 @@ Mobraille extends learning opportunities to the physical world.
 
 
 ## Meet the Team
-![code](images/Omkar.jpg)
-
-Omkar works on both the hardware and software fronts of the project. They are
-a cycling and hiking enthusiast. They once ate a Chipotle burrito without it falling apart.
-![code](images/Tara.jpg)
-
-Tara is the team's machine learning expert. She's one of the Greek Sing chairs in
-her sorority Delta Gamma and a lead teaching assistant for the premier introductory
-computer programming course at CMU.
-![code](images/Chris.jpg)
-
-Chris is the team hardware lead. He is a big jazz boy and also one of the Greek Sing
-chairs for Delta Tau Delta fraternity at CMU.
-
+- [Team Bios](pages/team.md)
 
 ---
 
