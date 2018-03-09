@@ -6,7 +6,9 @@ description: Mobraille is an object-to-Braille device that is scoped to classify
 three different toys and articulate their names in Braille. Mobraille will
 enable blind children to begin to see the world.
 ---
+# 18-500 Team D6 Spring 2018
 
+## What is Mobraille?
 Mobraille is an object-to-Braille device that is scoped to classify
 three different toys and articulate their names in Braille. Mobraille will
 enable blind children to begin to see the world.
