@@ -28,12 +28,15 @@ BecDot is an electromechanical educational toy that uses NFC tags to identify ob
 and then articulate Braille characters.
 
 ## Current tasks
-* Image data set collection
+* Image data set collection with consistent white backdrop and lighting
+* Implementation of bounding box of toy (image segmentation)
 * Color moments feature extraction implementation
+* Histogram of gradients feature extraction implementation
 * PCB Design Iteration (2)
 
 ## Blog Posts
 
+- [March 22](pages/update2.md)
 - [March 5](pages/update1.md)
 
 
