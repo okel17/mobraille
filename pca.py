@@ -57,5 +57,3 @@ def main():
         XPCA = np.dot(V_transpose, X_transpose[image_index].reshape((D,1)) - means)
         data.append(XPCA)
     return (data, V_transpose, means)
-
-main()
