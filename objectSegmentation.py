@@ -16,7 +16,7 @@ CANNY_THRESH_1 = 10
 CANNY_THRESH_2 = 100
 
 MARGIN = 300
-RESULT_SIZE = 1000
+RESULT_SIZE = 1002
 
 #From 112 TA notes code lol
 def listJPEGFiles(path):
@@ -61,6 +61,7 @@ def main():
         max_contour = contour_info[0][0]
         (x,y,w,h) = cv2.boundingRect(max_contour)
 
+
         widthMargin = (RESULT_SIZE - w)//2
         heightMargin = (RESULT_SIZE - h)//2
 
@@ -74,7 +75,11 @@ def main():
             widthMarginRight = width - (x + w)
             widthMarginLeft = RESULT_SIZE - widthMarginRight - w
         else:
-            widthMarginLeft = widthMarginRight = widthMargin
+            if (((RESULT_SIZE - w) // 2) % 2 == 0):
+                widthMarginLeft = widthMarginRight = widthMargin
+            else:
+                widthMarginLeft = widthMargin
+                widthMarginRight = widthMargin + 1
             
         if (y - heightMargin < 0):
             heightMarginTop = y
@@ -83,15 +88,20 @@ def main():
             heightMarginBottom = height - (y + h)
             heightMarginTop = RESULT_SIZE - heightMarginBottom - h
         else:
-            heightMarginTop = heightMarginBottom = heightMargin
+            if (((RESULT_SIZE - h) // 2) % 2 == 0):
+                heightMarginTop = heightMarginBottom = heightMargin
+            else:
+                heightMarginTop = heightMargin
+                heightMarginBottom = heightMargin + 1
             
         newImage = img[(y-heightMarginTop):y+h+heightMarginBottom,
                        (x-widthMarginLeft):x+w+widthMarginRight] 
-                     
+        newImage = newImage[0:RESULT_SIZE-2, 0:RESULT_SIZE-2]
         _, _, fileName = file.rpartition("/")
                  
         newFileLocation = TARGET_PATH + "/" + "seg" + str(fileName)
-        print(newFileLocation)
+        #print("newImage size", newImage.shape[0], newImage.shape[1])
+        
         cv2.imwrite(newFileLocation, newImage)
 
 if __name__ == "__main__":
