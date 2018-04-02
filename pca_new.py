@@ -5,6 +5,8 @@ import cv2
 import matplotlib.pyplot as plt
 from sklearn import svm
 
+INPUT_FILE = "./test/segtest.jpg"
+
 def createX(path):
     X = []
     for file in os.listdir(path):
@@ -119,22 +121,32 @@ def main():
     newD, newN = np.shape(XPCA)
     #only keep N - C - 1 dimensions from PCA
     #(newN - C - 1)
-    XPCA = XPCA[C + 1:, :]
-    print(np.shape(XPCA))
+    XPCA = XPCA[C:, :]
     #W = LDA(XPCA[0:(newN - C - 1), :])
     W = np.real(LDA(XPCA))
     XLDA = np.real(XPCA.T.dot(W))
-    print(np.shape(XLDA))
-    print(XLDA)
     plt.plot(XLDA[0:30, 0:1], XLDA[0:30, 1:2], 'ro')
     plt.plot(XLDA[30:60, 0:1], XLDA[30:60, 1:2], 'bo')
     plt.plot(XLDA[60:90, 0:1], XLDA[60:90, 1:2], 'go')
-    np.savetxt('XLDA.out', XLDA)
-    np.savetxt('W.out', np.real(W))
-
 
     plt.show()
-
+    
+    Y = np.array([i//30 for i in range(np.shape(XLDA)[0])])
+    clf = svm.LinearSVC()
+    model = clf.fit(XLDA, Y)
+    im = cv2.imread(INPUT_FILE)
+    gray_image = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    X = gray_image.flatten() 
+    D = len(X)
+    X = np.array(X).reshape((D,1))
+    XPCAi = np.dot(VT, X.reshape((D,1)) - means)
+    XPCAi = XPCAi[C + 1:, :]
+    XLDAi = np.dot(XPCAi.T, W)
+    class_mapper = {0: "ball", 1: "block", 2: "spike"}
+    c = model.predict(XLDAi)[0]
+    print(XLDAi)
+    print(c)
+    print(class_mapper[c])
 
 main()
 

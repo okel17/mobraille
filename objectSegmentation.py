@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import os
 
-TARGET_PATH = "./test"
-INPUT_PATH = "./test"
+TARGET_PATH = "./demo"
+INPUT_PATH = "./demo"
 
 if not os.path.exists(TARGET_PATH):
     os.makedirs(TARGET_PATH)
@@ -41,11 +41,12 @@ def main():
         img = cv2.imread(file)
         imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         _, s, _ = cv2.split(imgHSV)
+        cv2.imwrite('saturation.jpg', s)
 
         edges = cv2.Canny(s, CANNY_THRESH_1, CANNY_THRESH_2)
         edges = cv2.dilate(edges, None)
         edges = cv2.erode(edges, None)
-        #cv2.imwrite('edges.jpg', edges)
+        cv2.imwrite('edges.jpg', edges)
 
         contour_info = []
         _, contours, _ = cv2.findContours(
