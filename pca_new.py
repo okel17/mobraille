@@ -2,6 +2,8 @@ import numpy as np
 import sys
 import os
 import cv2
+import matplotlib.pyplot as plt
+from sklearn import svm
 
 def createX(path):
     X = []
@@ -18,22 +20,24 @@ def createX(path):
 def PCA(X, X_transpose):
     D, N = np.shape(X)
     assert(np.shape(X) == (D,N))
+    gram_matrix = np.dot(X_transpose, X)
     #save some time getting gram matrix if the dataset is big
     #currently not using with toy data
-    if(not os.path.exists('transpose_toy.out')):
-        gram_matrix = np.dot(X_transpose, X)
-        np.savetxt('transpose_toy.out', newMatrix)
-    else:
-        gram_matrix = np.loadtxt('transpose_toy.out')
-
+    # if(not os.path.exists('transpose_segmented.out')):
+    #     gram_matrix = np.dot(X_transpose, X)
+    #     np.savetxt('transpose_segmented.out', newMatrix)
+    # else:
+    #     gram_matrix = np.loadtxt('transpose_s.out')
+    print('here')
     #get the mean across all samples for each dimension
     means = np.mean(X, axis=1).reshape((D, 1))
 
     #get the eigenvalues and eigenvectors of the gram matrix
-    eigenvalues, eigenvectors_ = np.linalg.eig(np.dot(X_transpose, X))
-
+    eigenvalues, eigenvectors_ = np.linalg.eig(gram_matrix)
+    sorted_pairs = sorted(zip(eigenvalues, eigenvectors_))
+    sorted_pairs.reverse()
     #sort the eigenvectors by their corresponding eigenvalues
-    eigenvectors_ = np.array([vec for _,vec in sorted(zip(eigenvalues, eigenvectors_))])
+    eigenvectors_ = np.array([vec for _,vec in sorted_pairs])
 
     #transform the eigenvectors to their covariance matrix counterparts
     V = []
@@ -57,7 +61,7 @@ def PCA(X, X_transpose):
     return (np.squeeze(np.array(data)).T, V_transpose, means)
 
 def labelData(X, X_transpose):
-    classes = {0: X_transpose[0:3,:].T, 1: X_transpose[3:6, :].T, 2: X_transpose[6:9, :].T}
+    classes = {0: X_transpose[0:30,:].T, 1: X_transpose[30:60, :].T, 2: X_transpose[60:90, :].T}
     return classes
 
 def getS_W(X, class_data, class_means, features):
@@ -88,26 +92,48 @@ def LDA(XPCA):
     class_data = labelData(XPCA, XPCA.T)
     class_means = dict()
     for c in class_data:
-        print(np.shape(np.mean(class_data[c], axis=1)))
         class_means[c] = np.mean(class_data[c], axis=1).reshape((newD,1))
     new_mean = np.mean(XPCA, axis=1)
     S_W = getS_W(XPCA, class_data, class_means, newD)
     S_B = getS_B(new_mean, class_data, class_means, newD)
     S_W_inv = np.linalg.inv(S_W)
     eigenvalues, eigenvectors = np.linalg.eig(S_W_inv.dot(S_B))
-    print(eigenvectors)
-    eigenvectors = np.array([vec for _,vec in sorted(zip(eigenvalues, eigenvectors))])
+    sorted_pairs = sorted(zip(eigenvalues, eigenvectors))
+    sorted_pairs.reverse()
+    eigenvectors = np.array([vec for _,vec in sorted_pairs])
+    W = np.hstack((eigenvectors[0].reshape(newD,1), eigenvectors[1].reshape(newD,1)))
+    return W
+
 
 
 def main():
-    X_transpose = createX('toy_data')
+    X_transpose = createX('segmented_data')
+
     X = X_transpose.transpose()
     D, N = np.shape(X)
+
     assert(np.shape(X) == (D,N))
     XPCA, VT, means = PCA(X, X_transpose)
+    print('done')
     C = 3
     newD, newN = np.shape(XPCA)
-    #LDA(XPCA[0:(newN - C - 1), :])
+    #only keep N - C - 1 dimensions from PCA
+    #(newN - C - 1)
+    XPCA = XPCA[C + 1:, :]
+    print(np.shape(XPCA))
+    #W = LDA(XPCA[0:(newN - C - 1), :])
+    W = np.real(LDA(XPCA))
+    XLDA = np.real(XPCA.T.dot(W))
+    print(np.shape(XLDA))
+    print(XLDA)
+    plt.plot(XLDA[0:30, 0:1], XLDA[0:30, 1:2], 'ro')
+    plt.plot(XLDA[30:60, 0:1], XLDA[30:60, 1:2], 'bo')
+    plt.plot(XLDA[60:90, 0:1], XLDA[60:90, 1:2], 'go')
+    np.savetxt('XLDA.out', XLDA)
+    np.savetxt('W.out', np.real(W))
+
+
+    plt.show()
 
 
 main()

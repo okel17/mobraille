@@ -7,7 +7,8 @@ import cv2
 import numpy as np
 import os
 
-TARGET_PATH = "./segmented_data"
+TARGET_PATH = "./test"
+INPUT_PATH = "./test"
 
 if not os.path.exists(TARGET_PATH):
     os.makedirs(TARGET_PATH)
@@ -34,7 +35,7 @@ def listJPEGFiles(path):
         return files
 
 def main():
-    files = listJPEGFiles("./data")
+    files = listJPEGFiles(INPUT_PATH)
     
     for file in files:
         img = cv2.imread(file)
