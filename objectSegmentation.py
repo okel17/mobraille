@@ -18,6 +18,8 @@ CANNY_THRESH_2 = 100
 MARGIN = 300
 RESULT_SIZE = 1002
 
+BINARIZATION_THRESHOLD = 127
+
 #From 112 TA notes code lol
 def listJPEGFiles(path):
     if (os.path.isdir(path) == False):
@@ -61,7 +63,9 @@ def main():
         max_contour = contour_info[0][0]
         (x,y,w,h) = cv2.boundingRect(max_contour)
 
-
+        _, newImage = 
+            cv2.threshold(s,BINARIZATION_THRESHOLD, 255,cv2.THRESH_BINARY)
+        
         widthMargin = (RESULT_SIZE - w)//2
         heightMargin = (RESULT_SIZE - h)//2
 
@@ -94,9 +98,11 @@ def main():
                 heightMarginTop = heightMargin
                 heightMarginBottom = heightMargin + 1
             
-        newImage = img[(y-heightMarginTop):y+h+heightMarginBottom,
-                       (x-widthMarginLeft):x+w+widthMarginRight] 
+        newImage = newImage[(y-heightMarginTop):y+h+heightMarginBottom,
+                       (x-widthMarginLeft):x+w+widthMarginRight]
+        
         newImage = newImage[0:RESULT_SIZE-2, 0:RESULT_SIZE-2]
+                
         _, _, fileName = file.rpartition("/")
                  
         newFileLocation = TARGET_PATH + "/" + "seg" + str(fileName)
