@@ -13,7 +13,7 @@ __Software Team (Tara & Omkar)__
   - Tara and Omkar got the SVM working and were able to classify a given test image taken inside the box by the Raspberry Pi.
 
 __Hardware Team (Chris & Omkar)__
-  - Check out this video of our solenoids the word "cat" in Braille: https://photos.app.goo.gl/psU9iChzsfYdF1nL2
+  - [Check out this video of our solenoids the word "cat" in Braille!](https://photos.app.goo.gl/psU9iChzsfYdF1nL2)
   - For our mid-point demo, we turned 6 solenoids (1 Braille character) on and off simultaneously using Arduino GPIO pins and switching circuits.
   - Later in the week, we controlled each of the solenoids individually and used PWM to save power. The above video demonstrates this.
   - We're abandoning the PCB! It will barely arrive in time to be useful and the hours of assembly will eat up time that we could otherwise spend writing software and integrating parts. This change of plans was approved by our TA.
