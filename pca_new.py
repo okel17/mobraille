@@ -106,8 +106,6 @@ def LDA(XPCA):
     W = np.hstack((eigenvectors[0].reshape(newD,1), eigenvectors[1].reshape(newD,1)))
     return W
 
-
-
 def main():
     X_transpose = createX('segmented_data')
 
@@ -140,7 +138,7 @@ def main():
     D = len(X)
     X = np.array(X).reshape((D,1))
     XPCAi = np.dot(VT, X.reshape((D,1)) - means)
-    XPCAi = XPCAi[C + 1:, :]
+    XPCAi = XPCAi[C:, :]
     XLDAi = np.dot(XPCAi.T, W)
     class_mapper = {0: "ball", 1: "block", 2: "spike"}
     c = model.predict(XLDAi)[0]
