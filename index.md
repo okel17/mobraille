@@ -36,6 +36,7 @@ and then articulate Braille characters.
 
 ## Blog Posts
 
+- [April 26](pages/update6.md)
 - [April 12](pages/update5.md)
 - [April 5](pages/update4.md)
 - [March 29](pages/update3.md)
