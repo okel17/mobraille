@@ -15,6 +15,9 @@ __Software Team (Tara & Omkar)__
   
 
 __Hardware Team (Chris & Omkar)__
+  - [Here's a video](https://photos.app.goo.gl/X6W5JfwUHHskv4z22) of the Raspberry Pi using the 16-channel PWM controller to spell "cat" with one character of Braille.
+  - This week Chris set up three PWM controllers and used one with the Pi. The Arduino is officially retired from our project!
+  - Next step: more characters! Chris is also looking into laser cutting a housing for each character.
 
   
 [Back](../index.md)
