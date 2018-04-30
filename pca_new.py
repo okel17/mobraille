@@ -5,7 +5,8 @@ import cv2
 import matplotlib.pyplot as plt
 from sklearn import svm
 
-INPUT_FILE = "./test/segtest.jpg"
+INPUT_FILE = "./segmented_data_test/segspike5.jpg"
+TEST_FOLDER = "./segmented_data_test"
 
 def createX(path):
     X = []
@@ -63,7 +64,7 @@ def PCA(X, X_transpose):
     return (np.squeeze(np.array(data)).T, V_transpose, means)
 
 def labelData(X, X_transpose):
-    classes = {0: X_transpose[0:30,:].T, 1: X_transpose[30:60, :].T, 2: X_transpose[60:90, :].T}
+    classes = {0: X_transpose[0:25,:].T, 1: X_transpose[25:50, :].T, 2: X_transpose[50:75, :].T}
     return classes
 
 def getS_W(X, class_data, class_means, features):
@@ -103,15 +104,33 @@ def LDA(XPCA):
     sorted_pairs = sorted(zip(eigenvalues, eigenvectors))
     sorted_pairs.reverse()
     eigenvectors = np.array([vec for _,vec in sorted_pairs])
-    W = np.hstack((eigenvectors[0].reshape(newD,1), eigenvectors[1].reshape(newD,1)))
+    W = np.hstack((eigenvectors[0].reshape(newD,1), eigenvectors[1].reshape(newD,1), eigenvectors[2].reshape(newD,1)))
     return W
 
+def classify(model, VT, means, W, C):
+    predicted_labels = []
+    for file in os.listdir(TEST_FOLDER):
+        im = cv2.imread(TEST_FOLDER + os.sep + file)
+        gray_image = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        X = gray_image.flatten() 
+        D = len(X)
+        X = np.array(X).reshape((D,1))
+        XPCAi = np.dot(VT, X.reshape((D,1)) - means)
+        newD, newN = np.shape(XPCAi)
+        XPCAi = XPCAi[72:, :]
+        XLDAi = np.dot(XPCAi.T, W)
+        class_mapper = {0: "ball", 1: "block", 2: "spike"}
+        c = model.predict(XLDAi)[0]
+        predicted_labels.append(c)
+    return predicted_labels
+
+
 def main():
-    X_transpose = createX('segmented_data')
+    X_transpose = createX('segmented_data_train')
 
     X = X_transpose.transpose()
     D, N = np.shape(X)
-
+    print('hey')
     assert(np.shape(X) == (D,N))
     XPCA, VT, means = PCA(X, X_transpose)
     print('done')
@@ -119,32 +138,44 @@ def main():
     newD, newN = np.shape(XPCA)
     #only keep N - C - 1 dimensions from PCA
     #(newN - C - 1)
-    XPCA = XPCA[C:, :]
+    XPCA = XPCA[72:, :]
     #W = LDA(XPCA[0:(newN - C - 1), :])
-    W = np.real(LDA(XPCA))
+    Wprime = LDA(XPCA)
+    print(Wprime)
+    W = np.real(Wprime)
     XLDA = np.real(XPCA.T.dot(W))
-    plt.plot(XLDA[0:30, 0:1], XLDA[0:30, 1:2], 'ro')
-    plt.plot(XLDA[30:60, 0:1], XLDA[30:60, 1:2], 'bo')
-    plt.plot(XLDA[60:90, 0:1], XLDA[60:90, 1:2], 'go')
+    print("shape of LDA =", np.shape(XLDA))
+    plt.plot(XLDA[0:25, 0:1], XLDA[0:25, 1:2], 'ro')
+    plt.plot(XLDA[25:50, 0:1], XLDA[25:50, 1:2], 'bo')
+    plt.plot(XLDA[50:75, 0:1], XLDA[50:75, 1:2], 'go')
 
     plt.show()
     
-    Y = np.array([i//30 for i in range(np.shape(XLDA)[0])])
-    clf = svm.LinearSVC()
+    Y = np.array([i//25 for i in range(np.shape(XLDA)[0])])
+    clf = svm.LinearSVC(random_state=0, dual=False)
     model = clf.fit(XLDA, Y)
-    im = cv2.imread(INPUT_FILE)
-    gray_image = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    X = gray_image.flatten() 
-    D = len(X)
-    X = np.array(X).reshape((D,1))
-    XPCAi = np.dot(VT, X.reshape((D,1)) - means)
-    XPCAi = XPCAi[C:, :]
-    XLDAi = np.dot(XPCAi.T, W)
-    class_mapper = {0: "ball", 1: "block", 2: "spike"}
-    c = model.predict(XLDAi)[0]
-    print(XLDAi)
-    print(c)
-    print(class_mapper[c])
+    Y_true = np.array([i//5 for i in range(15)])
+    Y_test = classify(model, VT, means, W, C)
+    print(Y_true)
+    print(Y_test)
+    total = 0
+    for i in range(len(Y_test)):
+        if(Y_true[i] == Y_test[i]):
+            total += 1
+    print("Accuracy = ", total/15)
+    # im = cv2.imread(INPUT_FILE)
+    # gray_image = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    # X = gray_image.flatten() 
+    # D = len(X)
+    # X = np.array(X).reshape((D,1))
+    # XPCAi = np.dot(VT, X.reshape((D,1)) - means)
+    # XPCAi = XPCAi[C:, :]
+    # XLDAi = np.dot(XPCAi.T, W)
+    # class_mapper = {0: "ball", 1: "block", 2: "spike"}
+    # c = model.predict(XLDAi)[0]
+    # print(XLDAi)
+    # print(c)
+    # print(class_mapper[c])
 
 main()
 
