@@ -5,6 +5,8 @@ import cv2
 import matplotlib.pyplot as plt
 import math
 
+import sys
+
 
 def createX(path):
     X = []
@@ -94,13 +96,10 @@ def distance(x1, y1, x2, y2):
 
 def findDistances(centroid, perimeter):
     centroidX, centroidY = centroid
-    print(len(perimeter))
     sample = len(perimeter)//360 + 1
-    print(sample)
     distances = []
     for i in range(0, 360):
         pixelIndex = (sample*i)%len(perimeter)
-        print(pixelIndex)
         pixelX, pixelY = perimeter[pixelIndex]
         pixDist = distance(centroidX, centroidY, pixelX, pixelY)
         distances.append((pixelIndex, pixDist))
@@ -112,60 +111,123 @@ def getAmplitude(distances):
 
 def crossConvolution(signal, template):
     maximum = None
-    for shift in range(0, 360):
-        shiftedTemplate = np.roll(signal, shift)
-        correlation = np.correlate(signal, shiftedTemplate)
-        if(maximum == None or correlation > maximum):
-            maximum = correlation
-    return correlation
+    maxshift = None
+    correlations = []
+    correlations = np.correlate(signal, template, "full")
+    #plt.plot(signal, 'r', template, 'g')
+    print(np.shape(correlations))
+    #plt.plot(correlations)
+    #plt.show()
+    # for shift in range(0, 360):
+    #     shiftedTemplate = np.roll(template, shift)
+    #     correlation = np.correlate(signal, shiftedTemplate)
+    #     #print(correlation, np.dot(signal, shiftedTemplate))
+    #     correlations.append(correlation[0])
+    #     # if(shift % 60 == 0):
+    #     #     plt.plot(signal, 'r', shiftedTemplate, 'g')
+    #     #     plt.show()
+    #     if(maximum == None or correlation[0] > maximum):
+    #         maximum = correlation
+    #         maxshift = shift 
+    # print(np.shape(correlations))
+    # print(maxshift)
+    # plt.plot(correlations)
+    # plt.show()
+
+    amplitude = getAmplitude(correlations)
+    return max(abs(correlations))#amplitude#correlation
         
 
-import random
-def main():
-    X = createX('segmented_data_train')
-    #index = random.randint(0, 74)
-    index = 0
+def makeTemplate(X, index, filename):
+    showImage = False
     blur = cv2.blur(X[index], (5,5))
     pixels = findPerimeter(blur)
-    
 
-    # cv2.imshow('blurred_image', blur)
-    # cv2.waitKey(0)
+    if (showImage):
+        cv2.imshow('blurred_image', blur)
+        cv2.waitKey(0)
     
     centroid = findCentroid(pixels)
     distances = findDistances(centroid, pixels)
     data = np.array(distances)[:,1]
-    spike_template = np.load("spike_template.npy")
-    block_template = np.load("block_template.npy")
-    ball_template = np.load("ball_template.npy")
-    plt.plot(np.array(distances)[:,1])
-    #plt.show()
+    plt.plot(data)
+    plt.show()
+
+    block_template = np.save(filename + ".npy", data)
+
+
+
+def main():
+    print(sys.argv)
+
+import random, copy
+def getAccuracy():
+    X = createX('segmented_data_train')
+    dictionary = dict()
     
-    print(len(data))
-    amplitude = getAmplitude(np.array(distances)[:,1])
-    variance = np.var(data)
-    print("variance", variance)
-    print("amplitude", amplitude)
-    print(index)
-    if(index < 25):
-        print("ball")
-    elif(index < 50):
-        print("block")
-    else:
-        print("spike")
+    spike_template = np.load("spike_template.npy")
+    block_template = np.load("block3_template.npy")
+    ball_template = np.load("ball_template.npy")
+    spike_template = spike_template/(np.linalg.norm(spike_template))
+    block_template = block_template/(np.linalg.norm(block_template))
+    ball_template = ball_template/(np.linalg.norm(ball_template))
+    
+    for index in range(0, 75):
+        print(index)
+        try:
+            blur = cv2.blur(X[index], (5,5))
+            pixels = findPerimeter(blur)
 
-    if(variance < 100):
-        print("we think this is a ball")
+            # cv2.imshow('blurred_image', blur)
+            # cv2.waitKey(0)
+            
+            centroid = findCentroid(pixels)
+            distances = findDistances(centroid, pixels)
+            data = np.array(distances)[:,1]
+            data = data/(np.linalg.norm(data))
+            
+            amplitude = getAmplitude(np.array(distances)[:,1])
+            variance = np.var(data)
+            oldData = copy.deepcopy(data)
+            ballCorrelation = crossConvolution(data, ball_template)
+            blockCorrelation = crossConvolution(data, block_template)
+            spikeCorrelation = crossConvolution(data, spike_template)
+            maxCorrelation = max(ballCorrelation, blockCorrelation, spikeCorrelation)
+            print("ball", maxCorrelation, ballCorrelation)
+            print("block", maxCorrelation, blockCorrelation)
+            print("spike", maxCorrelation, spikeCorrelation)
 
-    print("ball", crossConvolution(data, ball_template))
-    print("block", crossConvolution(data, block_template))
-    print("spike", crossConvolution(data, spike_template))
+            if(ballCorrelation == maxCorrelation):
+                print("This is a ball!!!!")
+                dictionary[index] = "ball"
+            elif(blockCorrelation == maxCorrelation):
+                print("This is a block!!!!")
+                dictionary[index] = "block"
+            else:
+                print("This is a spike!!!!")
+                dictionary[index] = "spike"
+        except:
+            continue
 
-
-
+    print(dictionary)
+    total = 0
+    for key in dictionary:
+        if(key < 25 and dictionary[key] == "ball"):
+            total += 1
+        elif(key < 50 and dictionary[key] == "block"):
+            total += 1
+        elif(key < 75 and dictionary[key] == "spike"):
+            total += 1
+    print('accuracy', total/len(dictionary))
+    # print("ball", crossConvolution(data, ball_template))
+    # print("block", crossConvolution(data, block_template))
+    # print("spike", crossConvolution(data, spike_template))
 
 
     #makeNewImage(pixels)
     #cv2.imshow("blah", blur)
 
 main()
+# X = createX('segmented_data_train')
+# makeTemplate(X, 27, "block3_template")
+
