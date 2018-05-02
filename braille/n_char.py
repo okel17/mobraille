@@ -7,6 +7,8 @@ import Adafruit_PCA9685
 import pybrl
 import sys
 import time
+import os
+
 
 # N number of characters to display #
 N = 2
@@ -20,7 +22,7 @@ ON_PWM = 2048       # width required to keep solenoid in on position
 OFF_PWM = 0         # width that turns the solenoid off
 
 # times in seconds #
-MOVE_TIME = 0.05    # time that MOVE_PWM is on
+MOVE_TIME = 0.08    # time that MOVE_PWM is on
 ON_TIME = 1         # time that each character is displayed
 OFF_TIME = 0.2      # time between each character when all solenoids are off
 
@@ -37,6 +39,11 @@ if __name__ == "__main__":
     pwm.set_pwm_freq(PWM_FREQ)
 
     user_string = sys.argv[1]
+    remainder = N - (len(user_string) % N)
+    padding = " "*remainder
+    user_string = user_string + padding
+
+    os.system("pico2wave -w ./out.wav " + user_string + " && aplay ./out.wav")
 
     print "Displaying ", user_string, "with the following Braille:"
     print pybrl.braille(user_string)
@@ -46,17 +53,17 @@ if __name__ == "__main__":
 
     groupedBrailleMatrix = []
     for group in groupedLetters:
-        braille_matrix = pybrl.convert(letter, pybrl.matrixcodes, pybrl.asciicodes)
+        braille_matrix = pybrl.convert(group, pybrl.matrixcodes, pybrl.asciicodes)
         groupedBrailleMatrix.append(braille_matrix)
 
     for group in groupedBrailleMatrix:
-	    for characterNumber in xrange(len(group)):
-	        for row in xrange(NUM_ROWS):
-	            for col in xrange(NUM_COLS):
-                    if braille_matrix[character][row][col]:
+        for characterNumber in xrange(len(group)):
+	    for row in xrange(NUM_ROWS):
+	        for col in xrange(NUM_COLS):
+                    if group[characterNumber][row][col]:
                         dot_num = NUM_COLS * row + col + 6*characterNumber
                         pwm.set_pwm(dot_num, 0, MOVE_PWM)
-                        time.sleep(MOVE_TIME)                            	    
+                        time.sleep(MOVE_TIME)
                         pwm.set_pwm(dot_num, 0, ON_PWM)
         time.sleep(ON_TIME)
         for i in xrange(NUM_ROWS*NUM_COLS*len(group)):

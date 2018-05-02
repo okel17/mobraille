@@ -6,12 +6,16 @@
 import cv2
 import numpy as np
 import os
+import sys
+INPUT_PATH = sys.argv[1]
+TARGET_PATH = sys.argv[2]
 
-TARGET_PATH = "./segmented_data"
+if not os.path.exists(INPUT_PATH):
+    os.makedirs(INPUT_PATH)
 
 if not os.path.exists(TARGET_PATH):
     os.makedirs(TARGET_PATH)
-    
+
 CANNY_THRESH_1 = 10
 CANNY_THRESH_2 = 100
 
@@ -36,36 +40,35 @@ def listJPEGFiles(path):
         return files
 
 def main():
-    files = listJPEGFiles("./data")
-    
+    files = listJPEGFiles(INPUT_PATH)
+    print "Input path" + INPUT_PATH
     for file in files:
         img = cv2.imread(file)
         imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        _, s, _ = cv2.split(imgHSV)
+        blah, s, blah_ = cv2.split(imgHSV)
 
         edges = cv2.Canny(s, CANNY_THRESH_1, CANNY_THRESH_2)
         edges = cv2.dilate(edges, None)
         edges = cv2.erode(edges, None)
         #cv2.imwrite('edges.jpg', edges)
+        print "here"
 
         contour_info = []
-        _, contours, _ = cv2.findContours(
-                            edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-                            
+        contours, blah = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
         for c in contours:
             contour_info.append((
                 c,
                 cv2.isContourConvex(c),
                 cv2.contourArea(c),
             ))
-            
+
         contour_info = sorted(contour_info, key=lambda c: c[2], reverse=True)
         max_contour = contour_info[0][0]
         (x,y,w,h) = cv2.boundingRect(max_contour)
 
-        _, newImage = 
-            cv2.threshold(s,BINARIZATION_THRESHOLD, 255,cv2.THRESH_BINARY)
-        
+        blank, newImage = cv2.threshold(s,BINARIZATION_THRESHOLD, 255,cv2.THRESH_BINARY)
+
         widthMargin = (RESULT_SIZE - w)//2
         heightMargin = (RESULT_SIZE - h)//2
 
@@ -84,7 +87,7 @@ def main():
             else:
                 widthMarginLeft = widthMargin
                 widthMarginRight = widthMargin + 1
-            
+
         if (y - heightMargin < 0):
             heightMarginTop = y
             heightMarginBottom = RESULT_SIZE - heightMarginTop - h
@@ -97,17 +100,17 @@ def main():
             else:
                 heightMarginTop = heightMargin
                 heightMarginBottom = heightMargin + 1
-            
+
         newImage = newImage[(y-heightMarginTop):y+h+heightMarginBottom,
                        (x-widthMarginLeft):x+w+widthMarginRight]
-        
+        print "blah"
         newImage = newImage[0:RESULT_SIZE-2, 0:RESULT_SIZE-2]
-                
+        print "meow"
         _, _, fileName = file.rpartition("/")
-                 
+
         newFileLocation = TARGET_PATH + "/" + "seg" + str(fileName)
-        #print("newImage size", newImage.shape[0], newImage.shape[1])
-        
+        print("newImage size", newImage.shape[0], newImage.shape[1])
+
         cv2.imwrite(newFileLocation, newImage)
 
 if __name__ == "__main__":

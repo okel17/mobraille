@@ -17,7 +17,7 @@ ON_PWM = 2048       # width required to keep solenoid in on position
 OFF_PWM = 0         # width that turns the solenoid off
 
 # times in seconds #
-MOVE_TIME = 0.05    # time that MOVE_PWM is on
+MOVE_TIME = 0.08    # time that MOVE_PWM is on
 ON_TIME = 1         # time that each character is displayed
 OFF_TIME = 0.2      # time between each character when all solenoids are off
 
