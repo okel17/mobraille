@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Mobraille
 tagline: 18-500 Spring 2018 Design Project (Team D6)
 description: Mobraille is an object-to-Braille device that is scoped to classify
